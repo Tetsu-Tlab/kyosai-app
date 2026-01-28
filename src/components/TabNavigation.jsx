@@ -1,4 +1,4 @@
-import { Home, BookOpen, Scale, Map, HeartHandshake, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
+import { Home, BookOpen, Scale, Map, HeartHandshake, AlertTriangle, Sparkles, Settings as SettingsIcon } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const TABS = [
