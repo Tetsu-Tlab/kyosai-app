@@ -18,6 +18,16 @@ export const COURSE_STRUCTURE = {
             { id: 'cross_disciplinary', label: '分野横断（地公混合）', description: '九州各県の傾向：地理・歴史・公民の融合問題' }
         ]
     },
+    geography: {
+        label: '専門：地理',
+        units: [
+            { id: 'physical_geo', label: '系統地理（自然）', description: '地形、気候、植生、土壌、自然災害' },
+            { id: 'human_geo', label: '系統地理（人文）', description: '資源・エネルギー、産業、人口、都市・村落' },
+            { id: 'regional_japan', label: '地誌（日本）', description: '日本の諸地域、地域調査方法、防災' },
+            { id: 'regional_world', label: '地誌（世界）', description: 'アジア、欧米、アフリカ、オセアニアの諸事象' },
+            { id: 'global_issues', label: '現代世界の諸課題', description: '環境問題、GIS（地理情報システム）、持続可能な社会' }
+        ]
+    },
     special_needs_fukuoka: {
         label: '福岡市：特支',
         units: [

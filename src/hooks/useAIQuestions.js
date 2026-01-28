@@ -51,6 +51,11 @@ export const useAIQuestions = () => {
   "explanation": "詳細な解説。なぜその選択肢が正解なのか、他の選択肢がなぜ誤りなのかを含める。",
   "reference": "出典元（学習指導要領、憲法、法律名など）"
 }
+
+【出題のヒント】
+- ${category === 'geography' ? '地形、気候、統計データ、地図の読解、世界の諸地域の特徴、GIS、持続可能な社会などの要素を取り入れてください。' : ''}
+- ${category === 'civics' ? '憲法、政治制度、経済理論、倫理（源流・近現代思想）、時事問題などの要素を取り入れてください。' : ''}
+- ${category === 'pedagogy_general' ? '教育基本法、学習指導要領、教育心理学、教育史などの要素を取り入れてください。' : ''}
       `;
 
             const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {

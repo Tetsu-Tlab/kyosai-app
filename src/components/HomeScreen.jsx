@@ -8,7 +8,7 @@ import {
     Sparkles,
     BookOpen,
     Scale,
-    Globe,
+    Map,
     HeartHandshake,
     AlertTriangle
 } from 'lucide-react';
@@ -16,7 +16,7 @@ import {
 const CATEGORY_ICONS = {
     pedagogy_general: { icon: BookOpen, color: 'bg-blue-500', label: '教職・一般' },
     civics: { icon: Scale, color: 'bg-rose-500', label: '専門：公民' },
-    social_studies: { icon: Globe, color: 'bg-emerald-500', label: '専門：地公' },
+    geography: { icon: Map, color: 'bg-emerald-500', label: '専門：地理' },
     special_needs_fukuoka: { icon: HeartHandshake, color: 'bg-amber-500', label: '福岡：特支' },
 };
 

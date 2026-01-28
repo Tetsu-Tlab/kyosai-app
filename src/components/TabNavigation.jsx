@@ -1,11 +1,11 @@
-import React from 'react';
-import { Home, BookOpen, Scale, Globe, HeartHandshake, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
+import { Home, BookOpen, Scale, Map, HeartHandshake, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const TABS = [
     { id: 'home', label: 'ホーム', icon: Home },
     { id: 'pedagogy_general', label: '教職・一般', icon: BookOpen },
     { id: 'civics', label: '専門：公民', icon: Scale },
+    { id: 'geography', label: '専門：地理', icon: Map },
     { id: 'special_needs_fukuoka', label: '福岡：特支', icon: HeartHandshake },
     { id: 'miss_review', label: 'ミス復習', icon: AlertTriangle },
     { id: 'settings', label: '設定', icon: SettingsIcon },
