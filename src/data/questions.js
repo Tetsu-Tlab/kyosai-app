@@ -180,7 +180,7 @@ export const QUESTIONS = [
     {
         id: "ss_2",
         category: "geography",
-        unit: "cross_disciplinary", // Since it's history in a way, place it under cross-disciplinary or similar
+        unit: "regional_japan",
         question: "鎌倉幕府において、御家人が将軍に対して軍役などを負担することを何というか。",
         options: [
             "奉公",
@@ -225,7 +225,7 @@ export const QUESTIONS = [
     {
         id: "ss_5",
         category: "geography",
-        unit: "economics", // Or similar, keep as economy if needed
+        unit: "human_geo",
         question: "円高（円の価値上昇）が進んだ場合、一般的にどのような影響が生じるか。",
         options: [
             "輸入品の価格が下がり、海外旅行に行きやすくなる",
@@ -313,5 +313,37 @@ export const QUESTIONS = [
         correctIndex: 0,
         explanation: "障害者差別解消法（障害を理由とする差別の解消の推進に関する法律）に基づき、公立学校を含む行政機関等には合理的配慮の提供が義務付けられています。",
         reference: "障害者差別解消法"
+    },
+
+    // --- 2026年度 予想問題 (2026 Predictions) ---
+    {
+        id: "pred_1",
+        category: "prediction_2026",
+        unit: "pred_pedagogy",
+        question: "2024年（令和6年）に全面施行・改訂が進む「生徒指導提要」に関し、近年の不登校対策の核となる考え方はどれか。",
+        options: [
+            "登校という結果のみを目標とせず、社会的自立を目指した支援を行う",
+            "一律の家庭訪問による登校刺激を最優先する",
+            "適応指導教室への通所を強制する",
+            "出席日数が足りない場合は一律に留年とする"
+        ],
+        correctIndex: 0,
+        explanation: "最新の生徒指導提要や文科省通知では、登校という結果のみを目標とせず、児童生徒の状況に応じた多様な学びの場（フリースクール等）の活用や、社会的自立へ向けた支援が重視されています。",
+        reference: "生徒指導提要（令和4年改訂版以降の指針）"
+    },
+    {
+        id: "pred_2",
+        category: "prediction_2026",
+        unit: "pred_civics",
+        question: "新科目「公共」において重視される、対立する利益を調整し、合意形成を図るための2つの調整原理はどれか。",
+        options: [
+            "効率と公正",
+            "自由と平等",
+            "需要と供給",
+            "権利と義務"
+        ],
+        correctIndex: 0,
+        explanation: "「公共」では、社会的事象を考察する際の視点として「効率」と「公正」が極めて重要視されています。",
+        reference: "高等学校学習指導要領 公共"
     }
 ];

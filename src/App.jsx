@@ -2,10 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { TabNavigation, TABS } from './components/TabNavigation';
 import { QuizCard } from './components/QuizCard';
 import { CompletionScreen } from './components/CompletionScreen';
-import { QUESTIONS } from './data/questions';
+// Static sample questions removed as per user request
+const QUESTIONS = [];
 import { useScoreKeeper } from './hooks/useScoreKeeper';
 import { useQuizLogic } from './hooks/useQuizLogic';
-import { AlertCircle, Sparkles, Loader2, GraduationCap, ChevronLeft } from 'lucide-react';
+import { AlertCircle, Sparkles, Loader2, GraduationCap, ChevronLeft, ArrowRight, BookOpen, Scale, HeartHandshake, RefreshCcw } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { HomeScreen } from './components/HomeScreen';
 import { UnitSelector } from './components/UnitSelector';
@@ -14,19 +15,25 @@ import { COURSE_STRUCTURE } from './data/constants';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [activeCategory, setActiveCategory] = useState(null);
   const [activeUnit, setActiveUnit] = useState(null);
-  const { recordResult, getReviewList, getStats } = useScoreKeeper();
-  const { generateQuestion, getGeneratedQuestions, isGenerating } = useAIQuestions();
+  const { recordResult, getReviewList, getStats, clearStats } = useScoreKeeper();
+  const { generateQuestion, getGeneratedQuestions, clearAllQuestions, isGenerating } = useAIQuestions();
   const [generatedQuestionsState, setGeneratedQuestionsState] = useState([]);
+  const [generationFailed, setGenerationFailed] = useState(false);
 
   // Load generated questions on mount
   useEffect(() => {
     setGeneratedQuestionsState(getGeneratedQuestions());
   }, [getGeneratedQuestions]);
 
-  // Reset unit when tab changes
+  // Reset category/unit when tab changes to home or settings
   useEffect(() => {
-    setActiveUnit(null);
+    if (activeTab === 'home' || activeTab === 'settings' || activeTab === 'miss_review') {
+      setActiveCategory(null);
+      setActiveUnit(null);
+    }
+    setGenerationFailed(false);
   }, [activeTab]);
 
   // Stats for dashboard
@@ -34,47 +41,73 @@ function App() {
 
   const activeTabLabel = useMemo(() => {
     if (activeTab === 'home') return 'ダッシュボード';
+    if (activeTab === 'settings') return '設定';
+    if (activeTab === 'miss_review') return 'ミス復習';
     if (activeUnit) return activeUnit.label;
-    return TABS.find(t => t.id === activeTab)?.label || '学習';
-  }, [activeTab, activeUnit]);
+    if (activeCategory) return COURSE_STRUCTURE[activeCategory]?.label;
+    return '学習コース';
+  }, [activeTab, activeUnit, activeCategory]);
 
-  // Determine questions based on tab AND unit
+  // Determine questions based on category AND unit
   const activeQuestions = useMemo(() => {
-    // Put generated questions FIRST for better visibility of new content
-    const allAvailable = [...generatedQuestionsState, ...QUESTIONS];
+    const allAvailable = generatedQuestionsState;
 
     if (activeTab === 'miss_review') {
       return getReviewList(allAvailable);
     }
 
-    if (activeTab === 'settings' || activeTab === 'home' || !activeUnit) {
+    if (!activeCategory || !activeUnit) {
       return [];
     }
 
     // Filter by category and unit
     return allAvailable.filter(q =>
-      q.category === activeTab &&
+      q.category === activeCategory &&
       (q.unit === activeUnit.id)
     );
-  }, [activeTab, activeUnit, getReviewList, generatedQuestionsState]);
+  }, [activeTab, activeCategory, activeUnit, getReviewList, generatedQuestionsState]);
 
   // Quiz Logic
   const quiz = useQuizLogic(activeQuestions);
 
+  // Auto-generate 10 questions when entering a unit if it's empty
+  useEffect(() => {
+    if (activeCategory && activeUnit && activeTab !== 'miss_review' && activeQuestions.length === 0 && !isGenerating && !generationFailed) {
+      handleHandleAI(10);
+    }
+  }, [activeCategory, activeUnit, activeQuestions.length, activeTab, isGenerating, generationFailed]);
+
   // Force reset when unit changes
   useEffect(() => {
     quiz.resetQuiz();
+    setGenerationFailed(false);
   }, [activeUnit]);
 
-  const handleHandleAI = async () => {
-    if (!activeUnit) return;
+  const handleHandleAI = async (count = 1) => {
+    if (!activeCategory || !activeUnit) return;
+    setGenerationFailed(false);
     try {
-      const parentLabel = COURSE_STRUCTURE[activeTab]?.label || '教職一般';
-      const updated = await generateQuestion(activeTab, parentLabel, activeUnit.id, activeUnit.label);
+      const catLabel = COURSE_STRUCTURE[activeCategory]?.label || '教職一般';
+      const updated = await generateQuestion(activeCategory, catLabel, activeUnit.id, activeUnit.label, count);
       setGeneratedQuestionsState(updated);
+
+      if (quiz.isFinished) {
+        quiz.resetQuiz();
+      }
     } catch (err) {
-      alert(err.message);
+      setGenerationFailed(true);
+      console.error("AI Generation failed:", err.message);
     }
+  };
+
+  const handleResetStats = () => {
+    clearStats();
+    // Stats will auto-refresh via getStats()
+  };
+
+  const handleResetQuestions = () => {
+    clearAllQuestions();
+    setGeneratedQuestionsState([]);
   };
 
   const handleAnswer = (optionIndex) => {
@@ -89,9 +122,12 @@ function App() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {activeUnit ? (
+            {(activeUnit || activeCategory) ? (
               <button
-                onClick={() => setActiveUnit(null)}
+                onClick={() => {
+                  if (activeUnit) setActiveUnit(null);
+                  else setActiveCategory(null);
+                }}
                 className="w-10 h-10 -ml-2 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors"
               >
                 <ChevronLeft size={24} />
@@ -102,7 +138,7 @@ function App() {
               </div>
             )}
             <h1 className="font-extrabold text-xl text-slate-900 tracking-tight">
-              {activeUnit ? activeUnit.label : 'T-Lab Kyosai'}
+              {activeUnit ? activeUnit.label : (activeCategory ? COURSE_STRUCTURE[activeCategory].label : 'T-Lab Kyosai')}
             </h1>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200">
@@ -114,19 +150,59 @@ function App() {
       {/* Main Content */}
       <main className="max-w-md mx-auto min-h-[calc(100vh-8rem)]">
         {activeTab === 'home' ? (
-          <HomeScreen stats={stats} onSelectTab={setActiveTab} />
+          <HomeScreen stats={stats} onSelectTab={setActiveTab} onSelectCategory={setActiveCategory} />
         ) : activeTab === 'settings' ? (
-          <Settings />
-        ) : activeTab === 'miss_review' && activeQuestions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[60vh] p-8 text-center text-slate-500">
-            <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle size={32} />
+          <Settings
+            onResetStats={handleResetStats}
+            onResetQuestions={handleResetQuestions}
+          />
+        ) : activeTab === 'miss_review' ? (
+          activeQuestions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[60vh] p-8 text-center text-slate-500">
+              <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-bold text-slate-700 mb-2">復習完了！</h2>
+              <p>現在、間違えた問題の履歴はありません。<br />ホームから学習を進めましょう！</p>
             </div>
-            <h2 className="text-xl font-bold text-slate-700 mb-2">復習完了！</h2>
-            <p>現在、間違えた問題の履歴はありません。<br />ホームから学習を進めましょう！</p>
+          ) : (
+            <QuizCard
+              question={quiz.currentQuestion}
+              questionIndex={quiz.currentIndex}
+              totalQuestions={quiz.total}
+              isAnswered={quiz.isAnswered}
+              isCorrect={quiz.isCorrect}
+              selectedOptionIndex={quiz.selectedOptionIndex}
+              onAnswer={handleAnswer}
+              onNext={quiz.nextQuestion}
+            />
+          )
+        ) : !activeCategory ? (
+          <div className="px-6 py-8 space-y-4">
+            <h2 className="text-xl font-extrabold text-slate-800 px-1">カテゴリーを選択</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {Object.entries(COURSE_STRUCTURE).map(([id, cfg]) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveCategory(id)}
+                  className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`${cfg.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white`}>
+                      {id === 'pedagogy' ? <BookOpen size={24} /> : id === 'social_studies' ? <Scale size={24} /> : <HeartHandshake size={24} />}
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-bold text-slate-900 group-hover:text-indigo-600">{cfg.label}</h3>
+                      <p className="text-[10px] text-slate-400 font-medium">{cfg.description}</p>
+                    </div>
+                  </div>
+                  <ArrowRight size={20} className="text-slate-300 group-hover:text-indigo-600" />
+                </button>
+              ))}
+            </div>
           </div>
-        ) : !activeUnit && activeTab !== 'miss_review' ? (
-          <UnitSelector categoryId={activeTab} onSelectUnit={setActiveUnit} />
+        ) : !activeUnit ? (
+          <UnitSelector categoryId={activeCategory} onSelectUnit={setActiveUnit} />
         ) : (
           <>
             {/* AI Generate Button (Only for unit tabs) */}
@@ -165,21 +241,41 @@ function App() {
                   onNext={quiz.nextQuestion}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-4">
-                  <p>{activeUnit?.label}の問題がまだありません</p>
-                  <button
-                    onClick={handleHandleAI}
-                    disabled={isGenerating}
-                    className="py-3 px-8 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 transition-transform active:scale-95"
-                  >
-                    {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                    AIで問題を生成する
-                  </button>
+                <div className="flex flex-col items-center justify-center min-h-[50vh] px-8 text-center">
+                  {!generationFailed ? (
+                    <div className="flex flex-col items-center animate-pulse">
+                      <div className="relative mb-6">
+                        <Loader2 size={48} className="animate-spin text-indigo-500" />
+                        <Sparkles size={20} className="absolute -top-1 -right-1 text-amber-400 animate-bounce" />
+                      </div>
+                      <p className="text-slate-700 font-black text-lg">AIが良問を10問作成中...</p>
+                      <p className="text-xs text-slate-400 mt-2 font-medium">最新の出題傾向と九州の過去問を分析しています</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white p-8 rounded-3xl border-2 border-rose-50 border-dashed flex flex-col items-center">
+                      <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-4">
+                        <AlertCircle size={32} />
+                      </div>
+                      <h3 className="font-bold text-slate-800 text-lg mb-2">生成に失敗しました</h3>
+                      <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                        API制限に達したか、接続が不安定です。<br />1分ほど待ってから再試行してください。
+                      </p>
+                      <button
+                        onClick={() => handleHandleAI(10)}
+                        className="bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 transition-transform active:scale-95 shadow-lg shadow-slate-200"
+                      >
+                        <RefreshCcw size={18} />
+                        もう一度試す
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             ) : (
               <CompletionScreen
                 onRetry={quiz.resetQuiz}
+                onAddMore={() => handleHandleAI(5)}
+                isGenerating={isGenerating}
               />
             )}
           </>

@@ -11,15 +11,15 @@ export const useAIQuestions = () => {
         return saved ? JSON.parse(saved) : [];
     }, []);
 
-    const saveGeneratedQuestion = useCallback((question) => {
+    const saveGeneratedQuestions = useCallback((newQuestions) => {
         const existing = getGeneratedQuestions();
-        const updated = [...existing, { ...question, id: `ai_${Date.now()}` }];
+        const updated = [...existing, ...newQuestions.map(q => ({ ...q, id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` }))];
         localStorage.setItem(GENERATED_QUESTIONS_KEY, JSON.stringify(updated));
         return updated;
     }, [getGeneratedQuestions]);
 
-    const generateQuestion = async (category, categoryLabel, unitId, unitLabel) => {
-        const apiKey = localStorage.getItem('gemini_api_key');
+    const generateQuestion = async (category, categoryLabel, unitId, unitLabel, count = 1) => {
+        const apiKey = localStorage.getItem('gemini_api_key')?.trim();
         const prefecture = localStorage.getItem('user_prefecture') || '福岡県';
 
         if (!apiKey) {
@@ -32,34 +32,38 @@ export const useAIQuestions = () => {
         try {
             const prompt = `
 あなたは日本の教員採用試験（教採）の対策専門家です。
-以下の条件に基づいて、高品質な4択問題を1問作成してください。
+以下の条件に基づいて、合格レベルの高品質な4択問題を【${count}問】作成してください。
 
-【厳守：正解のランダム化】
-正解の選択肢（answer）が毎回 0（1番目）に偏らないよう、0, 1, 2, 3 の中から完全にランダムに選んでください。
+【厳守事項】
+1. 正解のランダム化: 各問題の正解インデックス(answer)が 0, 1, 2, 3 の中でバラバラになるようにしてください。
+2. 内容の網羅性: 単元「${unitLabel}」の範囲内で、出題テーマが重複しないよう、多角的（知識、理解、思考）な問題を${count}問作成してください。
+3. 形式: 必ず以下のJSON形式の配列のみで返答してください。
+
+[
+  {
+    "question": "問題文",
+    "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+    "answer": 正解のインデックス番号(0-3),
+    "explanation": "解説",
+    "reference": "出典"
+  },
+  ...
+]
 
 【条件】
 1. 自治体・地域: ${prefecture}
 2. 大項目: ${categoryLabel}
-3. 単元（小項目）: ${unitLabel}
-4. 難易度: 実際の1次試験（公民などは専門試験レベル）を想定
-5. 形式: 必ず以下のJSON形式で返答してください。他の説明文は一切含めないでください。
+3. 単元: ${unitLabel}
+4. 難易度: 実際の1次試験（専門教養レベル）
 
-{
-  "question": "問題文",
-  "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
-  "answer": 正解のインデックス(0-3),
-  "explanation": "詳細な解説。なぜその選択肢が正解なのか、他の選択肢がなぜ誤りなのかを含める。",
-  "reference": "出典元（学習指導要領、憲法、法律名など）"
-}
+【出題方針】
+- ${category === 'prediction_2026' ? '2026年度に向けた最新予想問題。近年の傾向から重要度の高いテーマを厳選。' : '過去10年の頻出事項から、本質的な理解を問う良問。'}
+- ${category === 'geography' ? '地形、気候、統計、地誌、GIS、SDGs等の多様な側面。' : ''}
+- ${category === 'civics' ? '憲法、政治、経済、倫理、時事のバランス。' : ''}
+- ${category === 'pedagogy_general' ? '教育法規、原理、心理、史、生徒指導、ICT、答申。' : ''}
+`;
 
-【出題のヒント】
-- ${category === 'prediction_2026' ? '2026年度試験に向けた最新予想問題です。「新採用職活動」の動向、令和6年・7年の答申、最新の社会情勢、および各県の過去3年の出題頻度から「次に出る」テーマを選定してください。' : ''}
-- ${category === 'geography' ? '地形、気候、統計データ、地図の読解、世界の諸地域の特徴、GIS、持続可能な社会などの要素を取り入れてください。' : ''}
-- ${category === 'civics' ? '憲法、政治制度、経済理論、倫理（源流・近現代思想）、時事問題などの要素を取り入れてください。' : ''}
-- ${category === 'pedagogy_general' ? '教育基本法、学習指導要領、教育心理学、教育史などの要素を取り入れてください。' : ''}
-      `;
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,29 +79,45 @@ export const useAIQuestions = () => {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || 'APIリクエストに失敗しました');
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `APIエラー (Status: ${response.status})`);
             }
 
             const data = await response.json();
+
+            if (!data.candidates?.[0]?.content) {
+                throw new Error('AIが回答を生成できませんでした。');
+            }
+
             let content = data.candidates[0].content.parts[0].text;
-
-            // Clean up potentially markdown-wrapped JSON
             content = content.replace(/```json\n?|```/g, '').trim();
-            const parsed = JSON.parse(content);
 
-            // Map 'answer' to 'correctIndex' for compatibility
-            const question = {
-                category,
-                unit: unitId,
-                question: parsed.question,
-                options: parsed.options,
-                correctIndex: parsed.answer,
-                explanation: parsed.explanation,
-                reference: parsed.reference || 'AI生成問題'
-            };
+            let parsedRaw = JSON.parse(content);
+            const questionsArray = Array.isArray(parsedRaw) ? parsedRaw : [parsedRaw];
 
-            return saveGeneratedQuestion(question);
+            const processedQuestions = questionsArray.map(parsed => {
+                // シャッフルロジック
+                const originalOptions = Array.isArray(parsed.options) ? parsed.options : ["エラー", "エラー", "エラー", "エラー"];
+                const originalAnswerIndex = Number(parsed.answer) || 0;
+                const optionPairs = originalOptions.map((opt, i) => ({ text: opt, isCorrect: i === originalAnswerIndex }));
+
+                for (let i = optionPairs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [optionPairs[i], optionPairs[j]] = [optionPairs[j], optionPairs[i]];
+                }
+
+                return {
+                    category,
+                    unit: unitId,
+                    question: parsed.question || "生成エラー",
+                    options: optionPairs.map(p => p.text),
+                    correctIndex: optionPairs.findIndex(p => p.isCorrect),
+                    explanation: parsed.explanation || "解説なし",
+                    reference: parsed.reference || '教員採用試験 出題傾向'
+                };
+            });
+
+            return saveGeneratedQuestions(processedQuestions);
         } catch (err) {
             console.error('AI Generation Error:', err);
             setError(err.message);
@@ -107,9 +127,14 @@ export const useAIQuestions = () => {
         }
     };
 
+    const clearAllQuestions = useCallback(() => {
+        localStorage.removeItem(GENERATED_QUESTIONS_KEY);
+    }, []);
+
     return {
         generateQuestion,
         getGeneratedQuestions,
+        clearAllQuestions,
         isGenerating,
         error
     };

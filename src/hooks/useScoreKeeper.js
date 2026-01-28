@@ -64,11 +64,17 @@ export const useScoreKeeper = () => {
         return { totalAnswered, accuracy, missCount };
     };
 
+    const clearStats = () => {
+        setScores({});
+        localStorage.removeItem(STORAGE_KEY);
+    };
+
     return {
         scores,
         recordResult,
         getMissCount,
         getReviewList,
-        getStats
+        getStats,
+        clearStats
     };
 };

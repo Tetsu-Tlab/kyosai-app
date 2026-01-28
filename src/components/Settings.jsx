@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, Key, MapPin, CheckCircle2 } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Key, MapPin, CheckCircle2, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
 
-export const Settings = () => {
+export const Settings = ({ onResetStats, onResetQuestions }) => {
   const [apiKey, setApiKey] = useState('');
   const [selectedPrefecture, setSelectedPrefecture] = useState('福岡県');
   const [showSaved, setShowSaved] = useState(false);
@@ -14,7 +14,7 @@ export const Settings = () => {
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('gemini_api_key', apiKey);
+    localStorage.setItem('gemini_api_key', apiKey.trim());
     localStorage.setItem('user_prefecture', selectedPrefecture);
     setShowSaved(true);
     setTimeout(() => setShowSaved(false), 3000);
@@ -64,11 +64,10 @@ export const Settings = () => {
               <button
                 key={pref}
                 onClick={() => setSelectedPrefecture(pref)}
-                className={`py-3 px-4 rounded-xl text-sm font-medium border-2 transition-all ${
-                  selectedPrefecture === pref
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200'
-                }`}
+                className={`py-3 px-4 rounded-xl text-sm font-medium border-2 transition-all ${selectedPrefecture === pref
+                  ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                  : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200'
+                  }`}
               >
                 {pref}
               </button>
@@ -95,6 +94,50 @@ export const Settings = () => {
             </>
           )}
         </button>
+
+        {/* Danger Zone */}
+        <div className="pt-10 space-y-4">
+          <div className="flex items-center gap-2 px-1 text-rose-600">
+            <AlertTriangle size={18} />
+            <h3 className="font-extrabold text-sm uppercase tracking-wider">Danger Zone</h3>
+          </div>
+
+          <div className="bg-rose-50/50 p-5 rounded-3xl border border-rose-100 space-y-3">
+            <button
+              onClick={() => {
+                if (window.confirm('学習記録をリセットしますか？この操作は取り消せません。')) {
+                  onResetStats();
+                }
+              }}
+              className="w-full py-3 px-4 bg-white border border-rose-200 text-rose-600 font-bold rounded-2xl flex items-center justify-between group hover:bg-rose-600 hover:text-white transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <RotateCcw size={18} />
+                <span className="text-sm">学習記録をリセット</span>
+              </div>
+              <span className="text-[10px] font-black opacity-50 group-hover:opacity-100">RESET STATS</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (window.confirm('生成された問題をすべて削除しますか？')) {
+                  onResetQuestions();
+                }
+              }}
+              className="w-full py-3 px-4 bg-white border border-rose-200 text-rose-600 font-bold rounded-2xl flex items-center justify-between group hover:bg-rose-600 hover:text-white transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <Trash2 size={18} />
+                <span className="text-sm">生成問題をすべて削除</span>
+              </div>
+              <span className="text-[10px] font-black opacity-50 group-hover:opacity-100">CLEAR AI DATA</span>
+            </button>
+
+            <p className="text-[10px] text-rose-400 text-center font-medium px-2">
+              ※本番前の「身の引き締め」や、まっさらな気持ちで再開したい時にご利用ください。
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

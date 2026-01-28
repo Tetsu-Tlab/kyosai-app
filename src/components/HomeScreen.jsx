@@ -14,14 +14,12 @@ import {
 } from 'lucide-react';
 
 const CATEGORY_ICONS = {
-    prediction_2026: { icon: Sparkles, color: 'bg-violet-600', label: '2026予想' },
-    pedagogy_general: { icon: BookOpen, color: 'bg-blue-500', label: '教職・一般' },
-    civics: { icon: Scale, color: 'bg-rose-500', label: '専門：公民' },
-    geography: { icon: Map, color: 'bg-emerald-500', label: '専門：地理' },
-    special_needs_fukuoka: { icon: HeartHandshake, color: 'bg-amber-500', label: '福岡：特支' },
+    pedagogy: { icon: BookOpen, color: 'bg-indigo-600', label: '教職教養', desc: '教育原理・法規・最新の2026予想まで' },
+    social_studies: { icon: Scale, color: 'bg-rose-500', label: '専門教養（社会）', desc: '公民・地理の統合演習と横断対策' },
+    special_needs: { icon: HeartHandshake, color: 'bg-amber-500', label: '特別支援教育', desc: '自立活動から福岡市独自の施策まで' },
 };
 
-export const HomeScreen = ({ stats, onSelectTab }) => {
+export const HomeScreen = ({ stats, onSelectTab, onSelectCategory }) => {
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -33,6 +31,11 @@ export const HomeScreen = ({ stats, onSelectTab }) => {
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 }
+    };
+
+    const handleCategoryClick = (id) => {
+        onSelectTab('learn');
+        onSelectCategory(id);
     };
 
     return (
@@ -49,9 +52,9 @@ export const HomeScreen = ({ stats, onSelectTab }) => {
                         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                             Hello! <span className="text-indigo-600">Teacher.</span>
                         </h1>
-                        <p className="text-slate-500 mt-1 font-medium">合格への道、今日も一歩前へ。</p>
+                        <p className="text-slate-500 mt-1 font-medium">志望校合格へ、今日の一歩。</p>
                     </div>
-                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
+                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
                         <Trophy size={24} />
                     </div>
                 </div>
@@ -60,9 +63,9 @@ export const HomeScreen = ({ stats, onSelectTab }) => {
             {/* Stats Dashboard */}
             <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4">
                 {[
-                    { label: '解いた問題', value: stats.totalAnswered, icon: Target, color: 'text-blue-600', bg: 'bg-blue-50' },
+                    { label: '回答数', value: stats.totalAnswered, icon: Target, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { label: '正解率', value: `${stats.accuracy}%`, icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
-                    { label: '要復習', value: stats.missCount, icon: AlertTriangle, color: 'text-rose-600', bg: 'bg-rose-50' },
+                    { label: 'ミス', value: stats.missCount, icon: AlertTriangle, color: 'text-rose-600', bg: 'bg-rose-50' },
                 ].map((stat, i) => (
                     <div key={i} className={`${stat.bg} p-4 rounded-2xl border border-white/50 shadow-sm`}>
                         <div className={`${stat.color} mb-2`}>
@@ -71,32 +74,32 @@ export const HomeScreen = ({ stats, onSelectTab }) => {
                         <div className="text-xl font-bold text-slate-800">{stat.value}</div>
                         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</div>
                     </div>
-                ))}
+                ))} statistics
             </motion.div>
 
             {/* Course Categories */}
             <motion.div variants={itemVariants} className="space-y-4">
                 <div className="flex items-center justify-between px-1">
-                    <h2 className="text-xl font-extrabold text-slate-800">学習コース</h2>
+                    <h2 className="text-xl font-extrabold text-slate-800">学習を開始する</h2>
                     <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 uppercase tracking-tighter">
-                        Select Subject
+                        Category
                     </span>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                     {Object.entries(CATEGORY_ICONS).map(([id, cfg]) => (
                         <button
                             key={id}
-                            onClick={() => onSelectTab(id)}
+                            onClick={() => handleCategoryClick(id)}
                             className="group bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-100 transition-all text-left flex items-center gap-5 active:scale-[0.97]"
                         >
-                            <div className={`${cfg.color} w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                                <cfg.icon size={28} />
+                            <div className={`${cfg.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                                <cfg.icon size={32} />
                             </div>
                             <div className="flex-1">
-                                <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors text-lg">
                                     {cfg.label}
                                 </h3>
-                                <p className="text-xs text-slate-400 mt-0.5 font-medium">単元別にターゲットを絞って学習</p>
+                                <p className="text-xs text-slate-400 mt-1 font-medium leading-relaxed">{cfg.desc}</p>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
                                 <ArrowRight size={20} />
