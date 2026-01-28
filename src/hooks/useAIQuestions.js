@@ -69,7 +69,7 @@ export const useAIQuestions = () => {
                         parts: [{ text: prompt }]
                     }],
                     generationConfig: {
-                        response_mime_type: "application/json",
+                        responseMimeType: "application/json",
                     }
                 })
             });
