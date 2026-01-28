@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 const CATEGORY_ICONS = {
+    prediction_2026: { icon: Sparkles, color: 'bg-violet-600', label: '2026予想' },
     pedagogy_general: { icon: BookOpen, color: 'bg-blue-500', label: '教職・一般' },
     civics: { icon: Scale, color: 'bg-rose-500', label: '専門：公民' },
     geography: { icon: Map, color: 'bg-emerald-500', label: '専門：地理' },

@@ -36,5 +36,13 @@ export const COURSE_STRUCTURE = {
             { id: 'fukuoka_policy', label: '福岡市の施策', description: '福岡市特別支援教育推進プラン' },
             { id: 'reasonable_accommodation', label: '合理的配慮', description: '差別解消法、現場での配慮' }
         ]
+    },
+    prediction_2026: {
+        label: '2026年度 予想問題',
+        units: [
+            { id: 'pred_pedagogy', label: '教職教養：予想', description: '最新の法改正・答申を踏まえた重要予測' },
+            { id: 'pred_civics', label: '専門公民：予想', description: '新科目「公共」や時事、混合問題の予測' },
+            { id: 'pred_geography', label: '専門地理：予想', description: '統計データの更新や現代世界の諸課題の予測' }
+        ]
     }
 };

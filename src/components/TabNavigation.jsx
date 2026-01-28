@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 
 export const TABS = [
     { id: 'home', label: 'ホーム', icon: Home },
+    { id: 'prediction_2026', label: '2026予想', icon: Sparkles },
     { id: 'pedagogy_general', label: '教職・一般', icon: BookOpen },
     { id: 'civics', label: '専門：公民', icon: Scale },
     { id: 'geography', label: '専門：地理', icon: Map },
