@@ -75,26 +75,30 @@ export const HomeScreen = ({ stats, onSelectTab }) => {
 
             {/* Course Categories */}
             <motion.div variants={itemVariants} className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-slate-800">学習コース</h2>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">New Content Available</span>
+                <div className="flex items-center justify-between px-1">
+                    <h2 className="text-xl font-extrabold text-slate-800">学習コース</h2>
+                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 uppercase tracking-tighter">
+                        Select Subject
+                    </span>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                     {Object.entries(CATEGORY_ICONS).map(([id, cfg]) => (
                         <button
                             key={id}
                             onClick={() => onSelectTab(id)}
-                            className="group bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all text-left flex items-center gap-4 active:scale-[0.98]"
+                            className="group bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-100 transition-all text-left flex items-center gap-5 active:scale-[0.97]"
                         >
-                            <div className={`${cfg.color} w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg shadow-black/5`}>
-                                <cfg.icon size={24} />
+                            <div className={`${cfg.color} w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/5 shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                                <cfg.icon size={28} />
                             </div>
                             <div className="flex-1">
-                                <h3 className="font-bold text-slate-800">{cfg.label}</h3>
-                                <p className="text-xs text-slate-400">傾向に基づいた重要問題</p>
+                                <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                    {cfg.label}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5 font-medium">単元別にターゲットを絞って学習</p>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                                <ArrowRight size={18} />
+                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                <ArrowRight size={20} />
                             </div>
                         </button>
                     ))}

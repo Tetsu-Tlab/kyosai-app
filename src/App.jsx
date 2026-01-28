@@ -5,13 +5,16 @@ import { CompletionScreen } from './components/CompletionScreen';
 import { QUESTIONS } from './data/questions';
 import { useScoreKeeper } from './hooks/useScoreKeeper';
 import { useQuizLogic } from './hooks/useQuizLogic';
-import { AlertCircle, Sparkles, Loader2, GraduationCap } from 'lucide-react';
+import { AlertCircle, Sparkles, Loader2, GraduationCap, ChevronLeft } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { HomeScreen } from './components/HomeScreen';
+import { UnitSelector } from './components/UnitSelector';
 import { useAIQuestions } from './hooks/useAIQuestions';
+import { COURSE_STRUCTURE } from './data/constants';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [activeUnit, setActiveUnit] = useState(null);
   const { recordResult, getReviewList, getStats } = useScoreKeeper();
   const { generateQuestion, getGeneratedQuestions, isGenerating } = useAIQuestions();
   const [generatedQuestionsState, setGeneratedQuestionsState] = useState([]);
@@ -21,37 +24,46 @@ function App() {
     setGeneratedQuestionsState(getGeneratedQuestions());
   }, [getGeneratedQuestions]);
 
+  // Reset unit when tab changes
+  useEffect(() => {
+    setActiveUnit(null);
+  }, [activeTab]);
+
   // Stats for dashboard
   const stats = useMemo(() => getStats(), [recordResult, getStats]);
 
   const activeTabLabel = useMemo(() => {
     if (activeTab === 'home') return 'ダッシュボード';
+    if (activeUnit) return activeUnit.label;
     return TABS.find(t => t.id === activeTab)?.label || '学習';
-  }, [activeTab]);
+  }, [activeTab, activeUnit]);
 
-  // Determine questions based on tab
+  // Determine questions based on tab AND unit
   const activeQuestions = useMemo(() => {
     const allAvailable = [...QUESTIONS, ...generatedQuestionsState];
     if (activeTab === 'miss_review') {
       return getReviewList(allAvailable);
     }
-    if (activeTab === 'settings' || activeTab === 'home') {
+    if (activeTab === 'settings' || activeTab === 'home' || !activeUnit) {
       return [];
     }
-    return allAvailable.filter(q => q.category === activeTab);
-  }, [activeTab, getReviewList, generatedQuestionsState]);
+    // Filter by category and unit
+    return allAvailable.filter(q => q.category === activeTab && (!q.unit || q.unit === activeUnit.id));
+  }, [activeTab, activeUnit, getReviewList, generatedQuestionsState]);
 
   // Quiz Logic
   const quiz = useQuizLogic(activeQuestions);
 
-  // Force reset when tab changes
+  // Force reset when unit changes
   useEffect(() => {
     quiz.resetQuiz();
-  }, [activeTab]);
+  }, [activeUnit]);
 
   const handleHandleAI = async () => {
+    if (!activeUnit) return;
     try {
-      const updated = await generateQuestion(activeTab, activeTabLabel);
+      const parentLabel = COURSE_STRUCTURE[activeTab]?.label || '教職一般';
+      const updated = await generateQuestion(activeTab, parentLabel, activeUnit.id, activeUnit.label);
       setGeneratedQuestionsState(updated);
     } catch (err) {
       alert(err.message);
@@ -70,11 +82,20 @@ function App() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-              <GraduationCap size={18} />
-            </div>
+            {activeUnit ? (
+              <button
+                onClick={() => setActiveUnit(null)}
+                className="w-10 h-10 -ml-2 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            ) : (
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                <GraduationCap size={18} />
+              </div>
+            )}
             <h1 className="font-extrabold text-xl text-slate-900 tracking-tight">
-              T-Lab <span className="text-indigo-600">Kyosai</span>
+              {activeUnit ? activeUnit.label : 'T-Lab Kyosai'}
             </h1>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200">
@@ -97,9 +118,11 @@ function App() {
             <h2 className="text-xl font-bold text-slate-700 mb-2">復習完了！</h2>
             <p>現在、間違えた問題の履歴はありません。<br />ホームから学習を進めましょう！</p>
           </div>
+        ) : !activeUnit && activeTab !== 'miss_review' ? (
+          <UnitSelector categoryId={activeTab} onSelectUnit={setActiveUnit} />
         ) : (
           <>
-            {/* AI Generate Button (Only for question tabs) */}
+            {/* AI Generate Button (Only for unit tabs) */}
             {activeTab !== 'miss_review' && !quiz.isFinished && (
               <div className="px-4 pt-4">
                 <button
@@ -115,7 +138,7 @@ function App() {
                   ) : (
                     <>
                       <Sparkles size={18} />
-                      <span>AIで新しい問題を追加</span>
+                      <span>{activeUnit?.label}の問題を追加</span>
                     </>
                   )}
                 </button>
@@ -136,14 +159,14 @@ function App() {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-4">
-                  <p>問題がまだありません</p>
+                  <p>{activeUnit?.label}の問題がまだありません</p>
                   <button
                     onClick={handleHandleAI}
                     disabled={isGenerating}
-                    className="py-2 px-6 bg-indigo-50 text-indigo-600 font-bold rounded-full border border-indigo-100 flex items-center gap-2"
+                    className="py-3 px-8 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 transition-transform active:scale-95"
                   >
-                    {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    AIで作成する
+                    {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                    AIで問題を生成する
                   </button>
                 </div>
               )

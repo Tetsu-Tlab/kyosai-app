@@ -18,7 +18,7 @@ export const useAIQuestions = () => {
         return updated;
     }, [getGeneratedQuestions]);
 
-    const generateQuestion = async (category, categoryLabel) => {
+    const generateQuestion = async (category, categoryLabel, unitId, unitLabel) => {
         const apiKey = localStorage.getItem('gemini_api_key');
         const prefecture = localStorage.getItem('user_prefecture') || '福岡県';
 
@@ -34,11 +34,15 @@ export const useAIQuestions = () => {
 あなたは日本の教員採用試験（教採）の対策専門家です。
 以下の条件に基づいて、高品質な4択問題を1問作成してください。
 
+【厳守：正解のランダム化】
+正解の選択肢（answer）が毎回 0（1番目）に偏らないよう、0, 1, 2, 3 の中から完全にランダムに選んでください。
+
 【条件】
 1. 自治体・地域: ${prefecture}
-2. カテゴリ: ${categoryLabel}
-3. 難易度: 実際の1次試験（公民などは専門試験レベル）を想定
-4. 形式: 必ず以下のJSON形式で返答してください。他の説明文は一切含めないでください。
+2. 大項目: ${categoryLabel}
+3. 単元（小項目）: ${unitLabel}
+4. 難易度: 実際の1次試験（公民などは専門試験レベル）を想定
+5. 形式: 必ず以下のJSON形式で返答してください。他の説明文は一切含めないでください。
 
 {
   "question": "問題文",
@@ -47,12 +51,6 @@ export const useAIQuestions = () => {
   "explanation": "詳細な解説。なぜその選択肢が正解なのか、他の選択肢がなぜ誤りなのかを含める。",
   "reference": "出典元（学習指導要領、憲法、法律名など）"
 }
-
-【出題のヒント】
-- ${category === 'civics' ? 'ロック、ルソーなどの思想家、日本国憲法、経済学の基礎概念、国際情勢などから出題してください。' : ''}
-- ${category === 'pedagogy_general' ? '教育基本法、学校教育法、学習指導要領総則、中教審答申、心理学用語などから出題してください。' : ''}
-- ${category === 'special_needs_fukuoka' ? '特別支援教育の基礎概念、福岡市独自の施策、自立活動の6区分、合理的配慮などから出題してください。' : ''}
-- ${category === 'social_studies' ? '地理、歴史、公民の融合問題、または時事問題から出題してください。' : ''}
       `;
 
             const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -82,6 +80,7 @@ export const useAIQuestions = () => {
             // Map 'answer' to 'correctIndex' for compatibility
             const question = {
                 category,
+                unit: unitId,
                 question: parsed.question,
                 options: parsed.options,
                 correctIndex: parsed.answer,
