@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Scale, Globe, HeartHandshake, AlertTriangle } from 'lucide-react';
+import { BookOpen, Scale, Globe, HeartHandshake, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const TABS = [
@@ -8,6 +8,7 @@ export const TABS = [
     { id: 'social_studies', label: '専門：地公', icon: Globe },
     { id: 'special_needs_fukuoka', label: '福岡：特支', icon: HeartHandshake },
     { id: 'miss_review', label: 'ミス復習', icon: AlertTriangle },
+    { id: 'settings', label: '設定', icon: SettingsIcon },
 ];
 
 export const TabNavigation = ({ activeTab, onTabChange }) => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, ArrowRight, BookOpen } from 'lucide-react';
 import { clsx } from 'clsx';
+import confetti from 'canvas-confetti';
 
 export const QuizCard = ({
     question,
@@ -13,6 +14,18 @@ export const QuizCard = ({
     isCorrect,
     onNext
 }) => {
+    // Add effect for confetti when isCorrect becomes true and isAnswered matches
+    React.useEffect(() => {
+        if (isAnswered && isCorrect) {
+            confetti({
+                particleCount: 40,
+                spread: 50,
+                origin: { y: 0.8 },
+                colors: ['#6366f1', '#10b981', '#fbbf24']
+            });
+        }
+    }, [isAnswered, isCorrect]);
+
     return (
         <div className="w-full max-w-md mx-auto px-4 pb-24 pt-4">
             {/* Progress */}
