@@ -1,8 +1,9 @@
 export const CATEGORIES = {
     pedagogy_general: "教職・一般",
     civics: "専門：公民",
-    social_studies: "専門：地公",
+    geography: "専門：地理",
     special_needs_fukuoka: "福岡市：特支",
+    prediction_2026: "2026年度 予想問題"
 };
 
 export const QUESTIONS = [
@@ -10,6 +11,7 @@ export const QUESTIONS = [
     {
         id: "pg_1",
         category: "pedagogy_general",
+        unit: "edu_principles",
         question: "「学習指導要領」における「生きる力」の3つの要素として、正しい組み合わせはどれか。",
         options: [
             "確かな学力、豊かな人間性、健やかな体",
@@ -24,6 +26,7 @@ export const QUESTIONS = [
     {
         id: "pg_2",
         category: "pedagogy_general",
+        unit: "edu_law",
         question: "日本国憲法第26条において定められている「教育を受ける権利」と対になる義務は何か。",
         options: [
             "教育を受けさせる義務",
@@ -38,6 +41,7 @@ export const QUESTIONS = [
     {
         id: "pg_3",
         category: "pedagogy_general",
+        unit: "edu_law",
         question: "教育基本法第1条（教育の目的）に記述されている「完成」を目指すものとして正しいものは何か。",
         options: [
             "人格の完成",
@@ -52,6 +56,7 @@ export const QUESTIONS = [
     {
         id: "pg_4",
         category: "pedagogy_general",
+        unit: "edu_law",
         question: "「いじめ防止対策推進法」において、いじめの定義として正しい記述はどれか。",
         options: [
             "心理的又は物理的な影響を与える行為であって、いじめを受けた児童等が心身の苦痛を感じているもの",
@@ -66,6 +71,7 @@ export const QUESTIONS = [
     {
         id: "pg_5",
         category: "pedagogy_general",
+        unit: "edu_principles",
         question: "GIGAスクール構想において、児童生徒「1人1台端末」とともに整備が進められているものは何か。",
         options: [
             "高速大容量の通信ネットワーク",
@@ -78,10 +84,11 @@ export const QUESTIONS = [
         reference: "文部科学省 GIGAスクール構想"
     },
 
-    // --- 専門：公民 (Civics - Kyushu Trend) ---
+    // --- 専門：公民 (Civics) ---
     {
         id: "cv_1",
         category: "civics",
+        unit: "politics",
         question: "ジョン・ロックが『統治二論』で主張し、日本国憲法にも影響を与えた概念はどれか。",
         options: [
             "抵抗権（革命権）",
@@ -96,6 +103,7 @@ export const QUESTIONS = [
     {
         id: "cv_2",
         category: "civics",
+        unit: "economics",
         question: "アダム・スミスが説いた、個人の利己的な経済活動が結果として社会全体の利益をもたらす働きを何と呼ぶか。",
         options: [
             "神の見えざる手",
@@ -110,6 +118,7 @@ export const QUESTIONS = [
     {
         id: "cv_3",
         category: "civics",
+        unit: "politics",
         question: "日本の裁判員制度において、裁判員が参加する裁判はどれか。",
         options: [
             "地方裁判所で行われる重大な刑事事件の第一審",
@@ -124,6 +133,7 @@ export const QUESTIONS = [
     {
         id: "cv_4",
         category: "civics",
+        unit: "cross_disciplinary",
         question: "福岡県を含む九州地方での農業に関連し、食料自給率の向上策として推進されている「地産地消」のメリットとして適切でないものはどれか。",
         options: [
             "輸送コストの増大による環境負荷の増加",
@@ -138,6 +148,7 @@ export const QUESTIONS = [
     {
         id: "cv_5",
         category: "civics",
+        unit: "public_society",
         question: "現代の国際社会における「人間の安全保障」の考え方を提唱した機関はどれか。",
         options: [
             "国連開発計画 (UNDP)",
@@ -150,10 +161,11 @@ export const QUESTIONS = [
         reference: "UNDP 人間開発報告書"
     },
 
-    // --- 専門：地公 (Social Studies Combined) ---
+    // --- 専門：地理 (Geography) ---
     {
         id: "ss_1",
-        category: "social_studies",
+        category: "geography",
+        unit: "physical_geo",
         question: "日本の地形図において、等高線の間隔が狭い場所はどのような地形を示しているか。",
         options: [
             "傾斜が急である",
@@ -167,7 +179,8 @@ export const QUESTIONS = [
     },
     {
         id: "ss_2",
-        category: "social_studies",
+        category: "geography",
+        unit: "cross_disciplinary", // Since it's history in a way, place it under cross-disciplinary or similar
         question: "鎌倉幕府において、御家人が将軍に対して軍役などを負担することを何というか。",
         options: [
             "奉公",
@@ -181,7 +194,8 @@ export const QUESTIONS = [
     },
     {
         id: "ss_3",
-        category: "social_studies",
+        category: "geography",
+        unit: "regional_world",
         question: "第二次世界大戦後、1951年に日本が主権を回復した条約はどれか。",
         options: [
             "サンフランシスコ平和条約",
@@ -195,7 +209,8 @@ export const QUESTIONS = [
     },
     {
         id: "ss_4",
-        category: "social_studies",
+        category: "geography",
+        unit: "physical_geo",
         question: "ケッペンの気候区分において、日本（本州）の大部分が属する気候はどれか。",
         options: [
             "温暖湿潤気候 (Cfa)",
@@ -209,7 +224,8 @@ export const QUESTIONS = [
     },
     {
         id: "ss_5",
-        category: "social_studies",
+        category: "geography",
+        unit: "economics", // Or similar, keep as economy if needed
         question: "円高（円の価値上昇）が進んだ場合、一般的にどのような影響が生じるか。",
         options: [
             "輸入品の価格が下がり、海外旅行に行きやすくなる",
@@ -226,6 +242,7 @@ export const QUESTIONS = [
     {
         id: "sn_1",
         category: "special_needs_fukuoka",
+        unit: "independent_activities",
         question: "特別支援学校小学部学習指導要領において、「自立活動」の6区分に含まれないものはどれか。",
         options: [
             "職業・家庭",
@@ -240,6 +257,7 @@ export const QUESTIONS = [
     {
         id: "sn_2",
         category: "special_needs_fukuoka",
+        unit: "independent_activities",
         question: "福岡市が推進する「個別の教育支援計画」の説明として、最も適切なものはどれか。",
         options: [
             "乳幼児期から学校卒業後までを見通した長期的な視点での支援計画",
@@ -254,6 +272,7 @@ export const QUESTIONS = [
     {
         id: "sn_3",
         category: "special_needs_fukuoka",
+        unit: "disabilities",
         question: "特別支援学級に在籍する児童に対して作成される「個別の指導計画」の主な目的は何か。",
         options: [
             "一人一人の教育的ニーズに応じたきめ細かな指導の実施",
@@ -268,6 +287,7 @@ export const QUESTIONS = [
     {
         id: "sn_4",
         category: "special_needs_fukuoka",
+        unit: "disabilities",
         question: "発達障害者支援法において定義される「LD」の正式名称は何か。",
         options: [
             "学習障害 (Learning Disabilities)",
@@ -282,6 +302,7 @@ export const QUESTIONS = [
     {
         id: "sn_5",
         category: "special_needs_fukuoka",
+        unit: "reasonable_accommodation",
         question: "福岡市における「合理的配慮」の提供の基礎となる法律はどれか。",
         options: [
             "障害者差別解消法",

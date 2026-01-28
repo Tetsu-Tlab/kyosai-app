@@ -80,7 +80,10 @@ export const useAIQuestions = () => {
             }
 
             const data = await response.json();
-            const content = data.candidates[0].content.parts[0].text;
+            let content = data.candidates[0].content.parts[0].text;
+
+            // Clean up potentially markdown-wrapped JSON
+            content = content.replace(/```json\n?|```/g, '').trim();
             const parsed = JSON.parse(content);
 
             // Map 'answer' to 'correctIndex' for compatibility

@@ -40,15 +40,22 @@ function App() {
 
   // Determine questions based on tab AND unit
   const activeQuestions = useMemo(() => {
-    const allAvailable = [...QUESTIONS, ...generatedQuestionsState];
+    // Put generated questions FIRST for better visibility of new content
+    const allAvailable = [...generatedQuestionsState, ...QUESTIONS];
+
     if (activeTab === 'miss_review') {
       return getReviewList(allAvailable);
     }
+
     if (activeTab === 'settings' || activeTab === 'home' || !activeUnit) {
       return [];
     }
+
     // Filter by category and unit
-    return allAvailable.filter(q => q.category === activeTab && (!q.unit || q.unit === activeUnit.id));
+    return allAvailable.filter(q =>
+      q.category === activeTab &&
+      (q.unit === activeUnit.id)
+    );
   }, [activeTab, activeUnit, getReviewList, generatedQuestionsState]);
 
   // Quiz Logic
