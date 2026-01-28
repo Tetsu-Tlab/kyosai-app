@@ -11,10 +11,11 @@ export const COURSE_STRUCTURE = {
     civics: {
         label: '専門：公民',
         units: [
-            { id: 'politics', label: '政治学', description: '民主政治、憲法、国際政治' },
-            { id: 'economics', label: '経済学', description: '市場、財政、金融、労働' },
-            { id: 'ethics', label: '倫理', description: '源流思想、西洋・日本・現代思想' },
-            { id: 'current_affairs', label: '現代社会・時事', description: '環境、人口、国際社会の課題' }
+            { id: 'ethics', label: '倫理学', description: '源流思想、日本・西洋思想、現代のエトス' },
+            { id: 'politics', label: '政治学', description: '民主政治原理、日本国憲法、国際関係' },
+            { id: 'economics', label: '経済学', description: '経済理論、日本経済統計、現代の経済課題' },
+            { id: 'public_society', label: '公共・現代社会', description: '現代の社会的諸課題、人間、生命・情報倫理' },
+            { id: 'cross_disciplinary', label: '分野横断（地公混合）', description: '九州各県の傾向：地理・歴史・公民の融合問題' }
         ]
     },
     special_needs_fukuoka: {
