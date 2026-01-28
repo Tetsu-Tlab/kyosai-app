@@ -5,13 +5,14 @@ import { CompletionScreen } from './components/CompletionScreen';
 import { QUESTIONS } from './data/questions';
 import { useScoreKeeper } from './hooks/useScoreKeeper';
 import { useQuizLogic } from './hooks/useQuizLogic';
-import { AlertCircle, Sparkles, Loader2 } from 'lucide-react';
+import { AlertCircle, Sparkles, Loader2, GraduationCap } from 'lucide-react';
 import { Settings } from './components/Settings';
+import { HomeScreen } from './components/HomeScreen';
 import { useAIQuestions } from './hooks/useAIQuestions';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('pedagogy_general');
-  const { recordResult, getReviewList } = useScoreKeeper();
+  const [activeTab, setActiveTab] = useState('home');
+  const { recordResult, getReviewList, getStats } = useScoreKeeper();
   const { generateQuestion, getGeneratedQuestions, isGenerating } = useAIQuestions();
   const [generatedQuestionsState, setGeneratedQuestionsState] = useState([]);
 
@@ -20,13 +21,21 @@ function App() {
     setGeneratedQuestionsState(getGeneratedQuestions());
   }, [getGeneratedQuestions]);
 
+  // Stats for dashboard
+  const stats = useMemo(() => getStats(), [recordResult, getStats]);
+
+  const activeTabLabel = useMemo(() => {
+    if (activeTab === 'home') return 'ダッシュボード';
+    return TABS.find(t => t.id === activeTab)?.label || '学習';
+  }, [activeTab]);
+
   // Determine questions based on tab
   const activeQuestions = useMemo(() => {
     const allAvailable = [...QUESTIONS, ...generatedQuestionsState];
     if (activeTab === 'miss_review') {
       return getReviewList(allAvailable);
     }
-    if (activeTab === 'settings') {
+    if (activeTab === 'settings' || activeTab === 'home') {
       return [];
     }
     return allAvailable.filter(q => q.category === activeTab);
@@ -55,17 +64,20 @@ function App() {
     recordResult(quiz.currentQuestion.id, isCorrect);
   };
 
-  const activeTabLabel = TABS.find(t => t.id === activeTab)?.label;
-
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="font-bold text-lg text-indigo-900 tracking-tight">
-            教採対策アプリ
-          </h1>
-          <span className="text-xs font-medium px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md">
+        <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+              <GraduationCap size={18} />
+            </div>
+            <h1 className="font-extrabold text-xl text-slate-900 tracking-tight">
+              T-Lab <span className="text-indigo-600">Kyosai</span>
+            </h1>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200">
             {activeTabLabel}
           </span>
         </div>
@@ -73,7 +85,9 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-md mx-auto min-h-[calc(100vh-8rem)]">
-        {activeTab === 'settings' ? (
+        {activeTab === 'home' ? (
+          <HomeScreen stats={stats} onSelectTab={setActiveTab} />
+        ) : activeTab === 'settings' ? (
           <Settings />
         ) : activeTab === 'miss_review' && activeQuestions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] p-8 text-center text-slate-500">
@@ -81,7 +95,7 @@ function App() {
               <AlertCircle size={32} />
             </div>
             <h2 className="text-xl font-bold text-slate-700 mb-2">復習完了！</h2>
-            <p>現在、間違えた問題の履歴はありません。<br />他のカテゴリで学習を進めましょう！</p>
+            <p>現在、間違えた問題の履歴はありません。<br />ホームから学習を進めましょう！</p>
           </div>
         ) : (
           <>

@@ -55,7 +55,7 @@ export const useAIQuestions = () => {
 - ${category === 'social_studies' ? '地理、歴史、公民の融合問題、または時事問題から出題してください。' : ''}
       `;
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

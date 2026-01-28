@@ -54,10 +54,21 @@ export const useScoreKeeper = () => {
         });
     };
 
+    const getStats = () => {
+        const values = Object.values(scores);
+        const totalAnswered = values.length;
+        const correctOnes = values.filter(s => s.lastResult === 'correct').length;
+        const accuracy = totalAnswered > 0 ? Math.round((correctOnes / totalAnswered) * 100) : 0;
+        const missCount = values.filter(s => s.lastResult === 'miss').length;
+
+        return { totalAnswered, accuracy, missCount };
+    };
+
     return {
         scores,
         recordResult,
         getMissCount,
-        getReviewList
+        getReviewList,
+        getStats
     };
 };
